@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
+import os
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:gani2402@localhost/SocialNetworkDatabase'
+load_dotenv(dotenv_path=".env")
+SQLALCHEMY_DATABASE_URL = os.getenv('DATABASE_URL')
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

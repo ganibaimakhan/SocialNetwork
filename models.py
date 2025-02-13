@@ -6,12 +6,12 @@ class Users(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True)
+    username = Column(String, unique=True, index=True)
     email = Column(String, unique=True)
     password = Column(String)
     role = Column(String)
-    profile_id = Column(Integer, ForeignKey('profile.id'))
-
+    profile_id = Column(Integer, ForeignKey('profile.id'), default=None)
+    last_login = Column(DateTime)
 
 class Profile(Base):
     __tablename__ = 'profile'
@@ -35,4 +35,11 @@ class Posts(Base):
     text = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+class Comments(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey('posts.id'))
+    text = Column(String)
     user_id = Column(Integer, ForeignKey('users.id'))

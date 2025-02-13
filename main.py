@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from models import Base
 from database import engine
-from routers import auth, profile, posts
+from routers import auth, profile, posts, comments
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 app = FastAPI()
@@ -13,6 +13,6 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
 app.include_router(profile.router)
-
 app.include_router(posts.router)
+app.include_router(comments.router)
 {"message": "Hello, FastAPI!"}

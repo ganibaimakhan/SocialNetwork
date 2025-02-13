@@ -10,13 +10,20 @@ from starlette import status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
+import os
+
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
 )
+load_dotenv(dotenv_path=".env")
 
-SECRET_KEY = '197b2c37c391bed93fe80344fe73b806947a65e36206e05a1a23c2fa12702fe3'
-ALGORITHM = 'HS256'
+SECRET_KEY = os.getenv('SECRET_KEY')
+ALGORITHM = "HS256"
+#if not SECRET_KEY:
+  #  raise ValueError("SECRET_KEY is missing! Check your .env file.")
+
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
@@ -42,7 +49,7 @@ def get_db():
 
 
 def create_access_token(username: str, user_id: int, role: str, expires_delta: timedelta):
-    encode = {'sub': username, 'id': user_id, 'role': role}
+    encode = {'username': username, 'id': user_id, 'role': role}
     expires = datetime.utcnow() + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -64,7 +71,7 @@ def authenticate_user(username: str, password: str, db):
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get('sub')
+        username: str = payload.get('username')
         user_id: int = payload.get('id')
         user_role: str = payload.get('role')
         if username is None or user_id is None:
@@ -82,8 +89,7 @@ async def create_user(db: db_dependency,
         email=create_user_request.email,
         username=create_user_request.username,
         role=create_user_request.role,
-        password=bcrypt_context.hash(create_user_request.password),
-        profile_id=None
+        password=bcrypt_context.hash(create_user_request.password)
 
     )
 
