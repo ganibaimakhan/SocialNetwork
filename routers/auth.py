@@ -106,7 +106,8 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     token = create_access_token(user.username, user.id, user.role, timedelta(minutes=20))
     user_table = db.query(Users).filter(Users.id == user.id).first()
     user_profile = db.query(Profile).filter(Profile.id == user_table.profile_id).first()
-    user_profile.last_login = datetime.now()
-    db.add(user_profile)
-    db.commit()
+    if user_profile:
+        user_profile.last_login = datetime.now()
+        db.add(user_profile)
+        db.commit()
     return {'access_token': token, 'token_type': 'bearer'}

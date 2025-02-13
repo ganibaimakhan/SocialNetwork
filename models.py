@@ -1,3 +1,5 @@
+from sqlalchemy.orm import relationship
+
 from database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 
@@ -36,6 +38,7 @@ class Posts(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     user_id = Column(Integer, ForeignKey('users.id'))
+    comments = relationship('Comments', back_populates='posts', lazy='joined')
 
 class Comments(Base):
     __tablename__ = 'comments'
@@ -43,3 +46,4 @@ class Comments(Base):
     post_id = Column(Integer, ForeignKey('posts.id'))
     text = Column(String)
     user_id = Column(Integer, ForeignKey('users.id'))
+    posts = relationship('Posts', back_populates='comments')

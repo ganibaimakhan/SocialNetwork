@@ -1,10 +1,10 @@
 
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy.orm import Session
 from starlette import status
-from models import Users, Profile, Posts
+from models import Users, Profile, Posts, Comments
 from database import SessionLocal
 from routers.auth import get_current_user
 from datetime import datetime
@@ -19,8 +19,6 @@ prefix='/posts',
 class PostDTO(BaseModel):
     title: str
     text: str
-
-
 
 def get_db():
     db = SessionLocal()
@@ -51,9 +49,9 @@ async def get_post(payload: payload_dependency, db: db_dependency):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
     user_posts = db.query(Posts).filter(Posts.user_id == payload.get('id')).all()
-
     if user_posts is None:
         raise HTTPException(status_code=404, detail='Posts not found')
+
     return user_posts
 
 
