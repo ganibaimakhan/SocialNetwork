@@ -2,7 +2,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from starlette import status
 from models import Users, Profile, Posts, Comments
 from database import SessionLocal
@@ -44,3 +44,10 @@ async def create_post(payload: payload_dependency, db: db_dependency,
     db.add(user_comment)
     db.commit()
 
+@router.get('/posts', status_code=status.HTTP_200_OK)
+async def get_post_with_comments(payload: payload_dependency, db: db_dependency):
+    if payload is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed')
+    posts = db.query(Posts).filter(Posts.user_id == payload.get('id')).options(joinedload(Posts.comments)).all()
+
+    return posts

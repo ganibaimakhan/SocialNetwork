@@ -30,8 +30,8 @@ async def to_follow(payload: payload_dependency, db: db_dependency,
         raise HTTPException(status_code=401, detail='Authentication Failed')
     if db.query(Users).filter(Users.id == following_id).first() is None:
         raise HTTPException(status_code=404, detail='Useer not found')
-    if db.query(Followers).filter(Followers.follower_id == payload.get('id')).filter(Followers.following_id == following_id).first():
-        raise HTTPException(status_code=409, detail='Already followed')
+    #if db.query(Followers).filter(Followers.follower_id == payload.get('id')).filter(Followers.following_id == following_id).first():
+    #    raise HTTPException(status_code=409, detail='Already followed')
     follow = Followers(follower_id=payload.get('id'),
                 following_id=following_id,
                 created_at=datetime.now())

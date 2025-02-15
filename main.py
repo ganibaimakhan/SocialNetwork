@@ -10,6 +10,9 @@ Base.metadata.create_all(bind=engine)
 
 #app.mount("/static", StaticFiles(directory="TodoApp/static"), name="static")
 
+@app.get("/")
+def test(request: Request):
+    return RedirectResponse(url="/docs")
 
 app.include_router(auth.router)
 app.include_router(profile.router)
@@ -17,4 +20,5 @@ app.include_router(posts.router)
 app.include_router(comments.router)
 app.include_router(likes.router)
 app.include_router(followers.router)
+
 {"message": "Hello, FastAPI!"}

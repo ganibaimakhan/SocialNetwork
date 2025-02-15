@@ -2,7 +2,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from starlette import status
 from models import Users, Profile, Posts, Comments
 from database import SessionLocal
@@ -51,7 +51,6 @@ async def get_post(payload: payload_dependency, db: db_dependency):
     user_posts = db.query(Posts).filter(Posts.user_id == payload.get('id')).all()
     if len(user_posts) == 0:
         raise HTTPException(status_code=404, detail='Posts not found')
-
     return user_posts
 
 @router.get('/lenta', status_code=status.HTTP_200_OK)
@@ -59,8 +58,6 @@ async def get_post(payload: payload_dependency, db: db_dependency):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
     user_posts = db.query(Posts).all()
-    if len(user_posts) == 0:
-        raise HTTPException(status_code=404, detail='Posts not found')
 
     return user_posts
 

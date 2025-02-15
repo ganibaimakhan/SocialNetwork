@@ -1,7 +1,11 @@
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Enum
+#from enum import Enum
+Base = declarative_base()
+
 
 
 class Users(Base):
@@ -11,8 +15,8 @@ class Users(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True)
     password = Column(String)
-    role = Column(String)
-    profile_id = Column(Integer, ForeignKey('profile.id'), default=None)
+    role = Column(Enum("admin", "user", name="roleenum"), default="user")
+    profile_id = Column(Integer, ForeignKey('profile.id'), nullable=False, default=None)
     #last_login = Column(DateTime)
 
 class Profile(Base):
@@ -38,7 +42,7 @@ class Posts(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     user_id = Column(Integer, ForeignKey('users.id'))
-    #comments = relationship('Comments', back_populates='posts', lazy='joined')
+    comments = relationship('Comments', back_populates='posts')
 
 class Comments(Base):
     __tablename__ = 'comments'
@@ -47,7 +51,7 @@ class Comments(Base):
     post_id = Column(Integer, ForeignKey('posts.id'))
     text = Column(String)
     user_id = Column(Integer, ForeignKey('users.id'))
-    #posts = relationship('Posts', back_populates='comments')
+    posts = relationship('Posts', back_populates='comments')
 
 class Likes(Base):
     __tablename__ = 'likes'
