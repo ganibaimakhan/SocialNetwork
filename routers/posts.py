@@ -31,7 +31,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 payload_dependency = Annotated[dict, Depends(get_current_user)]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_post(payload: payload_dependency, db: db_dependency,
                       new_post: PostDTO):
     if payload is None:
@@ -44,18 +44,37 @@ async def create_post(payload: payload_dependency, db: db_dependency,
     db.add(user_post)
     db.commit()
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get('/post', status_code=status.HTTP_200_OK)
 async def get_post(payload: payload_dependency, db: db_dependency):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
     user_posts = db.query(Posts).filter(Posts.user_id == payload.get('id')).all()
-    if user_posts is None:
+    if len(user_posts) == 0:
         raise HTTPException(status_code=404, detail='Posts not found')
 
     return user_posts
 
+@router.get('/lenta', status_code=status.HTTP_200_OK)
+async def get_post(payload: payload_dependency, db: db_dependency):
+    if payload is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed')
+    user_posts = db.query(Posts).all()
+    if len(user_posts) == 0:
+        raise HTTPException(status_code=404, detail='Posts not found')
 
-@router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+    return user_posts
+
+@router.get('/posts_by_user_id/{user_id}', status_code=status.HTTP_200_OK)
+async def get_post(payload: payload_dependency, db: db_dependency, user_id: int):
+    if payload is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed')
+    user_posts = db.query(Posts).filter(Posts.user_id == user_id).all()
+    if len(user_posts) == 0:
+        raise HTTPException(status_code=404, detail='Posts not found')
+
+    return user_posts
+
+@router.put("/change/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def change_post(payload: payload_dependency, db: db_dependency,
                       new_post: PostDTO, id: int):
     if payload is None:
@@ -71,7 +90,7 @@ async def change_post(payload: payload_dependency, db: db_dependency,
     db.commit()
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(payload: payload_dependency, db: db_dependency, id: int):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')

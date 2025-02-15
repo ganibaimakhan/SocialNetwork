@@ -31,14 +31,15 @@ db_dependency = Annotated[Session, Depends(get_db)]
 payload_dependency = Annotated[dict, Depends(get_current_user)]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_post(payload: payload_dependency, db: db_dependency,
-                      comm_request: CommentDTO):
+                      comment: str, post_id: int):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
-    user_comment = Comments(**comm_request.model_dump(),
+    user_comment = Comments(post_id=post_id,
+                            text=comment,
                             user_id=payload.get('id'))
-    if db.query(Posts).filter(Posts.id == comm_request.post_id).first() is None:
+    if db.query(Posts).filter(Posts.id == post_id).first() is None:
         raise HTTPException(status_code=404, detail='Post not found')
     db.add(user_comment)
     db.commit()

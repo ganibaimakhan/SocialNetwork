@@ -31,7 +31,7 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 payload_dependency = Annotated[dict, Depends(get_current_user)]
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_profile(payload: payload_dependency, db: db_dependency,
                          new_profile: ProfileDTO):
     if payload is None:
@@ -47,12 +47,13 @@ async def create_profile(payload: payload_dependency, db: db_dependency,
                            last_login=datetime.now())
     #print(user_profile)
     db.add(user_profile)
+    db.commit()
     user_profile = db.query(Profile).filter(Profile.user_id == payload.get('id')).first()
     user.profile_id = user_profile.id
     db.add(user)
     db.commit()
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get('/profile', status_code=status.HTTP_200_OK)
 async def get_profile(payload: payload_dependency, db: db_dependency):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
@@ -64,7 +65,7 @@ async def get_profile(payload: payload_dependency, db: db_dependency):
     return user_profile
 
 
-@router.put("/", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/change", status_code=status.HTTP_204_NO_CONTENT)
 async def change_profile(payload: payload_dependency, db: db_dependency,
                          new_profile: ProfileDTO):
     if payload is None:
@@ -85,7 +86,7 @@ async def change_profile(payload: payload_dependency, db: db_dependency,
     db.commit()
 
 
-@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_profile(payload: payload_dependency, db: db_dependency):
     if payload is None:
         raise HTTPException(status_code=401, detail='Authentication Failed')
